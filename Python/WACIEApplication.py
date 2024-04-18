@@ -18,6 +18,7 @@ from kivy.core.window import Window
 from kivy.uix.dropdown import DropDown
 import random
 import array as arr
+import time
 
 x_val = []
 y_val = []
@@ -122,7 +123,7 @@ class InputScreen(Screen):
         Clock.unschedule(self.read_serial_data)
 
     def fetch_graph1(self,instance):
-        self.requestID = "Req1"
+        self.requestID = "Req1\n"
         self.timeCounter = 0
         global ser
         print("Clearing Graph")
@@ -130,16 +131,23 @@ class InputScreen(Screen):
         y_val.clear()
         print(x_val,y_val)
         print(self.port_number)
+        if self.port_number is None:
+            print("Error: Port number is not selected.")
+            return
         ser = serial.Serial(port=self.port_number, baudrate=115200)
         if(ser.isOpen()):
             self.waveform1_get.text = "Fetching Graph 1..."
+            time.sleep(1)
+            ser.flushInput()
+            ser.flushOutput()
             print(self.requestID)
             ser.write(self.requestID.encode('utf-8'))
+            time.sleep(1)
             self.work()
 
 
     def fetch_graph2(self,instance):
-        self.requestID = "Req2"
+        self.requestID = "Req2\n"
         self.timeCounter = 0
         global ser
         print("Clearing Graph")
@@ -147,20 +155,25 @@ class InputScreen(Screen):
         y_val.clear()
         print(x_val,y_val)
         print(self.port_number)
+        if self.port_number is None:
+            print("Error: Port number is not selected.")
+            return
         ser = serial.Serial(port=self.port_number, baudrate=115200)
         if(ser.isOpen()):
             self.waveform2_get.text = "Fetching Graph 2..."
+            time.sleep(1)
+            ser.flushInput()
+            ser.flushOutput()
             print(self.requestID)
             ser.write(self.requestID.encode('utf-8'))
+            time.sleep(1)
             self.work()
 
     def read_serial_data(self, *args):
+        
         self.timeCounter += 1
         print(self.timeCounter)
         if(self.timeCounter <= 150):
-            if self.port_number is None:
-                print("Error: Port number is not selected.")
-                return
             
             serial_data = ser.readline().decode('utf-8')  # Read a line from serial and decode it
             print("Received data:", serial_data)
@@ -175,10 +188,10 @@ class InputScreen(Screen):
             
         else:
             print(x_val,y_val)
-            if(self.requestID == "Req1"):
+            if(self.requestID == "Req1\n"):
                 self.plot_graph1()
                 self.waveform1_get.text = "Get Waveform 1"
-            elif(self.requestID == "Req2"):
+            elif(self.requestID == "Req2\n"):
                 self.plot_graph2()
                 self.waveform2_get.text = "Get Waveform 2"
             ser.close()

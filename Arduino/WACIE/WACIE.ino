@@ -1,10 +1,6 @@
- #include <driver/adc.h>
 #include <ESP32_Servo.h>
 
 Servo myservo;
-
-hw_timer_t * timer = NULL; // Declare the timer variable
-
 
 TaskHandle_t SerialMonitor;
 
