@@ -1,6 +1,18 @@
 #include <ESP32_Servo.h>
+#include "BluetoothSerial.h"
 
+BluetoothSerial SerialBT;
 Servo myservo;
+
+String MACadd = "10:06:1C:A6:E0:AE";// Write Receiver side MAC address
+uint8_t address[6]  = {0x10, 0x06, 0x1C, 0xA6, 0xE0, 0xAE};//Write Receiver side MAC address in HEX
+
+bool connected;
+
+String gotRequest;
+bool sendReply = false;
+long randomNum;
+unsigned long reconnectTimer;
 
 TaskHandle_t SerialMonitor;
 
@@ -32,6 +44,26 @@ void startMeasure(){
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  SerialBT.begin("ESP32test", true); 
+
+  connected = SerialBT.connect(address);
+  if(connected) {
+    Serial.println("Connected Succesfully!");
+  } else {
+    while(!SerialBT.connected(10000)) {
+      Serial.println("Failed to connect. Make sure remote device is available and in range, then restart app."); 
+    }
+  }
+  // disconnect() may take upto 10 secs max
+  if (SerialBT.disconnect()) {
+    Serial.println("Disconnected Succesfully!");
+  }
+  
+  // this would reconnect to the name(will use address, if resolved) or address used with connect(name/address).
+  SerialBT.connect();
+  
+  reconnectTimer = millis();
+  
   pinMode(signalIN, INPUT);
   analogReadResolution(8);
   analogSetWidth(10);
@@ -54,9 +86,43 @@ void setup() {
 }
 
 void loop() {
+  if((millis() - reconnectTimer) > 5000){
+    reconnectTimer = millis();
+    SerialBT.connect();
+  }
+  
   if(!digitalRead(Button)){
     myservo.write(servoTap);
     delay(700);
     myservo.write(servoRest);
+  }
+
+  while(SerialBT.available()) {
+    gotRequest = SerialBT.readStringUntil('\n');
+    Serial.println(gotRequest);
+    if(gotRequest == "Req1"){
+      GotReq1 = true;
+      sendReply = true;
     }
+    else if(gotRequest == "Req2"){
+      GotReq2 = true;
+      sendReply = true;
+    } 
+  }
+  
+  if(GotReq1){
+    delay(100);
+    GotReq1 = false;
+    for(int i = 0; i < 150; i++){
+      SerialBT.println(String(i) + " " + String(data1[i]));
+    }
+  }
+  
+  if(GotReq2){
+    delay(100);
+    GotReq2 = false;
+    for(int i = 0; i < 150; i++){
+      SerialBT.println(String(i) + " " + String(data2[i]));
+    }
+  }
 }
