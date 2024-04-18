@@ -32,3 +32,5 @@ This sketch is for the WACIE controller that is responsible for getting data of 
 
 This folder contains the servo library for WACIE controller.
 
+> Note: Once you get the MAC address of the receiver using the BLE_Get_MAC sketch then replace on WACIE sketch the String MACadd and address[6] on line 7 & 8 respectively
+
