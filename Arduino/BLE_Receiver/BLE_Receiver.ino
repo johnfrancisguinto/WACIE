@@ -14,7 +14,7 @@ unsigned long replyTimer;
 long timeout = 3000;
 void setup() {
   Serial.begin(115200);
-  SerialBT.begin("ESP32test"); //Bluetooth device name
+  SerialBT.begin("wacieRX"); //Bluetooth device name
   Serial.println("The device started, now you can pair it with bluetooth!");
 }
 
@@ -38,9 +38,9 @@ void loop() {
   gotData[dataCount++] = SerialBT.readStringUntil('\n');
   }
   
-  if(dataCount == 150 && ((millis() - replyTimer) < timeout)){
+  if(dataCount == 151 && ((millis() - replyTimer) < timeout)){
     for(int i = 0; i<dataCount; i++){
-      Serial.println(String(i) + " " + String(gotData[i]));
+      Serial.println(String(gotData[i]));
       }
     dataCount = 0;
   }

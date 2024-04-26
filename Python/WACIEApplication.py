@@ -172,22 +172,24 @@ class InputScreen(Screen):
     def read_serial_data(self, *args):
         
         self.timeCounter += 1
-        print(self.timeCounter)
-        if(self.timeCounter <= 150):
+        if(self.timeCounter <= 151):
             
             serial_data = ser.readline().decode('utf-8')  # Read a line from serial and decode it
             print("Received data:", serial_data)
             serial_data = serial_data[0:-1]
-            print(len(serial_data))
             Data = serial_data.split()
-            if(Data[0].isnumeric()):
-                x_val.append(int(Data[0]))
-                
-            if(Data[1].isnumeric()):
-                y_val.append(int(Data[1]))
+            if(self.timeCounter <= 150):
+                if(Data[0].isnumeric()):
+                    x_val.append(int(Data[0]))
+                    
+                if(Data[1].isnumeric()):
+                    y_val.append(int(Data[1]))
+            else:
+                Tap_time = float(Data[1])/1000
+                print("Got Tap_time : " + str(Tap_time) + " sec")
             
         else:
-            print(x_val,y_val)
+            # print(x_val,y_val)
             if(self.requestID == "Req1\n"):
                 self.plot_graph1()
                 self.waveform1_get.text = "Get Waveform 1"

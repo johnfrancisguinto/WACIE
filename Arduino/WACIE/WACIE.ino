@@ -1,11 +1,15 @@
 #include <ESP32_Servo.h>
 #include "BluetoothSerial.h"
 
+volatile unsigned long startTime;
+volatile unsigned long endTime;
+volatile unsigned long Tap_time;
+
 BluetoothSerial SerialBT;
 Servo myservo;
 
-String MACadd = "10:06:1C:A6:E0:AE";// Write Receiver side MAC address
-uint8_t address[6]  = {0x10, 0x06, 0x1C, 0xA6, 0xE0, 0xAE};//Write Receiver side MAC address in HEX
+String MACadd = "70:B8:F6:5B:2B:56";// Write Receiver side MAC address
+uint8_t address[6]  = {0x70, 0xB8, 0xF6, 0x5B, 0x2B, 0x56};//Write Receiver side MAC address in HEX
 
 bool connected;
 
@@ -16,10 +20,11 @@ unsigned long reconnectTimer;
 
 TaskHandle_t SerialMonitor;
 
-volatile int val[200];
-volatile int data1[200];
-volatile int data2[200];
-volatile int index_val = 0;
+volatile unsigned long val[151];
+volatile unsigned long data1[151];
+volatile unsigned long data2[151];
+volatile unsigned int index_val = 0;
+
 bool foundSignal = false;
 bool GotSample = false;
 bool GotReq1 = false;
@@ -37,6 +42,7 @@ String Command;
 #define Button 12
 
 void startMeasure(){
+  endTime = millis();
   detachInterrupt(32);
   foundSignal = true;
   }
@@ -44,7 +50,7 @@ void startMeasure(){
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
-  SerialBT.begin("ESP32test", true); 
+  SerialBT.begin("wacieTX", true); 
 
   connected = SerialBT.connect(address);
   if(connected) {
@@ -92,6 +98,7 @@ void loop() {
   }
   
   if(!digitalRead(Button)){
+    startTime = millis();
     myservo.write(servoTap);
     delay(700);
     myservo.write(servoRest);
@@ -113,7 +120,7 @@ void loop() {
   if(GotReq1){
     delay(100);
     GotReq1 = false;
-    for(int i = 0; i < 150; i++){
+    for(int i = 0; i < 151; i++){
       SerialBT.println(String(i) + " " + String(data1[i]));
     }
   }
@@ -121,7 +128,7 @@ void loop() {
   if(GotReq2){
     delay(100);
     GotReq2 = false;
-    for(int i = 0; i < 150; i++){
+    for(int i = 0; i < 151; i++){
       SerialBT.println(String(i) + " " + String(data2[i]));
     }
   }
