@@ -90,9 +90,8 @@ class InputScreen(Screen):
             self.waveGrid.add_widget(self.waveBox1)
             self.waveGrid.add_widget(self.waveBox2)
             
-            self.velocity_label = Label(text='P-Wave Velocity: 00.00')
-            self.concrete_label = Label(text='Concrete State: STRONG')
-            self.estimate_label = Label(text='Estimated Lifespan: 25 years')
+            self.velocity_label = Label(text='P-Wave Velocity:')
+            self.concrete_label = Label(text='Concrete State:')
 
             self.dropdown_button = Button(text="Select Port", size_hint=(None, None), size=(500, 50),pos_hint={'center_x': 0.5, 'center_y': 0.5})
             self.dropdown_button.bind(on_release=self.dropdown.open)
@@ -103,7 +102,6 @@ class InputScreen(Screen):
             self.main_box.add_widget(self.waveGrid)
             self.main_box.add_widget(self.velocity_label)
             self.main_box.add_widget(self.concrete_label)
-            self.main_box.add_widget(self.estimate_label)
             
             self.add_widget(self.main_box)
 
@@ -123,7 +121,7 @@ class InputScreen(Screen):
         Clock.unschedule(self.read_serial_data)
 
     def fetch_graph1(self,instance):
-        self.requestID = "Req1\n"
+        self.requestID = "1"
         self.timeCounter = 0
         global ser
         print("Clearing Graph")
@@ -147,7 +145,7 @@ class InputScreen(Screen):
 
 
     def fetch_graph2(self,instance):
-        self.requestID = "Req2\n"
+        self.requestID = "2"
         self.timeCounter = 0
         global ser
         print("Clearing Graph")
@@ -185,17 +183,28 @@ class InputScreen(Screen):
                 if(Data[1].isnumeric()):
                     y_val.append(int(Data[1]))
             else:
-                Tap_time = float(Data[1])/1000
+                Distance = 0.5
+                Swing_Time = 0.349199
+                Tap_time = float(Data[1])/1000000
                 print("Got Tap_time : " + str(Tap_time) + " sec")
+                Total_time = abs(Tap_time - Swing_Time)
+                Velocity = Distance/Total_time
+                print("P-wave : " + str(Velocity) + " m/s")
+                #add condition for P-wave value here
+                State = 'STRONG'
+                
+                self.velocity_label.text = 'P-Wave Velocity: ' + str(Velocity)
+                self.concrete_label.text = 'Concrete State: ' + State
             
         else:
             # print(x_val,y_val)
-            if(self.requestID == "Req1\n"):
+            if(self.requestID == "1"):
                 self.plot_graph1()
                 self.waveform1_get.text = "Get Waveform 1"
-            elif(self.requestID == "Req2\n"):
+            elif(self.requestID == "2"):
                 self.plot_graph2()
                 self.waveform2_get.text = "Get Waveform 2"
+
             ser.close()
             self.rest()
             
@@ -213,6 +222,8 @@ class InputScreen(Screen):
         self.waveform1_graph.size_hint = (1, 5)  # Example size
         self.waveBox1.add_widget(self.waveform1_graph)
         self.waveBox1.add_widget(self.waveform1_get)
+        # self.main_box.add_widget(self.velocity_label)
+        # self.main_box.add_widget(self.concrete_label)
         
     def plot_graph2(self):
         fig2, ax2 = plt.subplots()
@@ -228,6 +239,8 @@ class InputScreen(Screen):
         self.waveform2_graph.size_hint = (1, 5)  # Example size
         self.waveBox2.add_widget(self.waveform2_graph)
         self.waveBox2.add_widget(self.waveform2_get)
+        # self.main_box.add_widget(self.velocity_label)
+        # self.main_box.add_widget(self.concrete_label)
 
     def populate_dropdown(self):
         com_ports = serial.tools.list_ports.comports()

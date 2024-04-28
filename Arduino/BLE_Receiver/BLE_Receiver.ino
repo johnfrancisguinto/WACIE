@@ -12,6 +12,11 @@ int dataCount = 0;
 bool allData = false;
 unsigned long replyTimer;
 long timeout = 3000;
+
+char charData;
+
+bool GotRequest = false;
+
 void setup() {
   Serial.begin(115200);
   SerialBT.begin("wacieRX"); //Bluetooth device name
@@ -21,30 +26,36 @@ void setup() {
 void loop() {
   
   if (Serial.available()) {
-    RequestData = "";
-    RequestData = Serial.readStringUntil('\n');
+//    RequestData = Serial.readStringUntil('\n');
+    charData = Serial.read();
     replyTimer = millis();
-    if(RequestData == "Req1"){
+    if(charData == '1'){
+      GotRequest = true;
+      RequestData = "Req1";
       dataCount = 0;
       SerialBT.print("Req1\n");
       }
-    if(RequestData == "Req2"){
+    if(charData == '2'){
+      GotRequest = true;
+      RequestData = "Req2";
       dataCount = 0;
       SerialBT.print("Req2\n");
       } 
     SerialBT.flush();
   }
+  
   while(SerialBT.available()) {
   gotData[dataCount++] = SerialBT.readStringUntil('\n');
   }
   
-  if(dataCount == 151 && ((millis() - replyTimer) < timeout)){
+  if(dataCount == 151 && ((millis() - replyTimer) < timeout) && GotRequest){
+    GotRequest = false;
     for(int i = 0; i<dataCount; i++){
       Serial.println(String(gotData[i]));
       }
     dataCount = 0;
   }
-  else if((millis() - replyTimer) > timeout){
+  else if((millis() - replyTimer) > timeout && GotRequest){
     replyTimer = millis();
     if(RequestData == "Req1"){
       dataCount = 0;

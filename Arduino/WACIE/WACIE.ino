@@ -33,7 +33,7 @@ String Command;
 
 #define servoTap 0
 #define servoRest 180
-#define servoPin 13
+#define servoPin 25
 
 #define signalIN 35
 
@@ -42,7 +42,7 @@ String Command;
 #define Button 12
 
 void startMeasure(){
-  endTime = millis();
+  endTime = micros();
   detachInterrupt(32);
   foundSignal = true;
   }
@@ -51,10 +51,12 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
   SerialBT.begin("wacieTX", true); 
-
+  pinMode(15,OUTPUT);
+  digitalWrite(15,LOW);
   connected = SerialBT.connect(address);
   if(connected) {
     Serial.println("Connected Succesfully!");
+    digitalWrite(15,HIGH);
   } else {
     while(!SerialBT.connected(10000)) {
       Serial.println("Failed to connect. Make sure remote device is available and in range, then restart app."); 
@@ -98,7 +100,7 @@ void loop() {
   }
   
   if(!digitalRead(Button)){
-    startTime = millis();
+    startTime = micros();
     myservo.write(servoTap);
     delay(700);
     myservo.write(servoRest);
