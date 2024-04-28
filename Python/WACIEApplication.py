@@ -184,14 +184,14 @@ class InputScreen(Screen):
                     y_val.append(int(Data[1]))
             else:
                 Distance = 0.5
-                Swing_Time = 0.349199
+                Swing_Time = 0.3001
                 Tap_time = float(Data[1])/1000000
                 print("Got Tap_time : " + str(Tap_time) + " sec")
                 Total_time = abs(Tap_time - Swing_Time)
                 Velocity = Distance/Total_time
                 print("P-wave : " + str(Velocity) + " m/s")
                 #add condition for P-wave value here
-                State = 'STRONG'
+                State = ''
                 
                 self.velocity_label.text = 'P-Wave Velocity: ' + str(Velocity)
                 self.concrete_label.text = 'Concrete State: ' + State
